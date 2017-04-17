@@ -10,6 +10,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <avr/io.h>
 
 #define LOW		false	/*!< Logic LOW pin state representation		*/
 #define HIGH	true	/*!< Logic HIGH pin state representation	*/
@@ -53,7 +54,7 @@ typedef struct tagPin_t
  *  @param[inout] *pin		Selected pin configuration
  *  @param[in] direction	New pin direction (INPUT/OUTPUT)
  *  @date 04.12.16			first implementation					*/
-inline void ioSetPinDirection(pin_t* pin, pinDir_t direction)
+static inline void ioSetPinDirection(pin_t* pin, pinDir_t direction)
 {
 	// update configuration
 	pin->Direction = direction;
@@ -73,7 +74,7 @@ inline void ioSetPinDirection(pin_t* pin, pinDir_t direction)
  *  @param[in] pin			Selected pin
  *	@return bool			Pin state
  *  @date 04.12.16			first implementation					*/
-inline bool ioReadPin(pin_t pin)
+static inline bool ioReadPin(pin_t pin)
 {
 	// return pin state as boolean
 	return (bool)(*pin.Port & (1 << pin.Number));
@@ -84,7 +85,7 @@ inline bool ioReadPin(pin_t pin)
  *	@param[in] pin			Target pin
  *	@param[in] state		Output state
  *	@date 04.12.16			first implementation					*/
-inline void ioWritePin(pin_t pin, bool state)
+static inline void ioWritePin(pin_t pin, bool state)
 {
 	// apply new state to pin output
 	*pin.Port &= ~(!state << pin.Number);
@@ -98,7 +99,7 @@ inline void ioWritePin(pin_t pin, bool state)
  *	@param[inout] pin		Selected pin configuration
  *	@param[in] pullUpEnable	New pullup-disable state
  *	@data 04.12.16			first implementation					*/
-inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
+static inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
 {
 	// apply pull-up only, if pin direction is an output.
 	if (pin->Direction == INPUT)
@@ -118,7 +119,7 @@ inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
  *
  *	@param[in] pinConf		Pin configuration
  *	@date 04.12.16			first implementation					*/
-inline void ioInitPin(pin_t pinConf)
+static inline void ioInitPin(pin_t pinConf)
 {
 	// Set pin direction in DDR
 	ioSetPinDirection(&pinConf, pinConf.Direction);
@@ -130,7 +131,7 @@ inline void ioInitPin(pin_t pinConf)
  *
  *	@param[in] PUDisable	Disable all pull-up resistors
  *	@date 04.12.16			first implementation					*/
-inline void ioSetGlobalPullUp(bool PUDisable)
+static inline void ioSetGlobalPullUp(bool PUDisable)
 {
 	MCUCR &= ~(PUDisable << PUD);
 	MCUCR |= !PUDisable << PUD;
@@ -142,7 +143,7 @@ inline void ioSetGlobalPullUp(bool PUDisable)
  * 
  *	@param[in] pin			Target pin
  *	@date 04.12.16			first implementation					*/
-inline void ioTogglePin(pin_t pin)
+static inline void ioTogglePin(pin_t pin)
 {
 	//if ( (*pin.DDR & (1 << pin.Number)) && (pin.Direction == OUTPUT) )
 	{

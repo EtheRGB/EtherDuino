@@ -27,7 +27,7 @@ typedef enum tagSpiClkRate_t
  *
  *	@param[in] rate			SPI Clock rate
  *	@date 05.12.16			first implementation					*/
-inline void spiSetMstrClkRate(spiClkRate_t rate)
+static inline void spiSetMstrClkRate(spiClkRate_t rate)
 {
 	// SPI Double Speed bit
 	SPSR &= ~((((~rate)&0x04) >> 2) << SPI2X);

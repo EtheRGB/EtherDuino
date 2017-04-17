@@ -13,8 +13,6 @@
 #include <stddef.h>
 #include <limits.h>
 #include <avr/pgmspace.h>
-#include <avr/interrupt.h>
-
 #include "../../modules/usart/usart_common.h"
 #include "../../modules/usart/usart_rs232.h"
 
@@ -51,7 +49,6 @@ uint8_t serialReadBufUntil(uint8_t* buffer, uint8_t bufSize, char stopChar, int 
 uint8_t serialRead(void);
 uint8_t serialPeek(void);
 int serialWriteStr(const char* message);
-int serialWriteStrP(const PROGMEM char* message);
 uint16_t serialWriteBuf(uint8_t* data, uint16_t length, int timeout);
 void serialFlush(void);
 
@@ -59,7 +56,7 @@ void serialFlush(void);
  *
  *	@param[in] data			Byte to be transmitted
  *	@date 07.12.16			first implementation					*/
-inline void serialWrite(uint8_t data)
+static inline void serialWrite(uint8_t data)
 {
 	usartSendData(data);
 }
@@ -70,7 +67,7 @@ inline void serialWrite(uint8_t data)
  *
  *	@param[in] baudrate		USART Baudrate
  *	@date 07.12.16			first implementation					*/
-inline void serialInit(usartBaudrate_t baudrate)
+static inline void serialInit(usartBaudrate_t baudrate)
 {
 	serialFlush();
 	usartInitRs232(USART_MSTR_ASYNC, baudrate, USART_LEN_8, USART_PARITY_NONE, USART_SBIT_1);
