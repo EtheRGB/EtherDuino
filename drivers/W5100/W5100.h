@@ -94,6 +94,12 @@
 #define W5100_Sn_SR_SOCK_LAST_ACK 0x1D
 #define W5100_Sn_SR_SOCK_ARP	 0x01
 
+#define W5100_CHIP_BASE 0x0000
+#define W5100_TXM_BASE	0x4000
+#define W5100_TXM_END	0x5FFF
+#define W5100_RXM_BASE	0x6000
+#define W5100_RXM_END	0x7FFF
+
 typedef enum tagW51eReg_t{	
 	/* -- Common registers -- */
 	/* Mode */
@@ -373,9 +379,32 @@ typedef enum tagW51eReg_t{
 	/* reserved 0x072C - 0x07FF */
 } w51eReg_t;
 
+#define W5100_SRG(s,r) ((r) + ((s)<<8))
+
 // Low level Device-specific implementation 
 void w51eInit(void);
 void w51eWrite(w51eReg_t reg, uint8_t data);
 uint8_t w51eRead(w51eReg_t reg);
+
+/*! @brief Read 16-bit data (WORD) from W5100 registers
+ *
+ *	@param[in] reg16		MSB-register of 2-Byte data
+ *	@return uint16_t		Data from registers
+ *	@date 14.04.17			First implementation					*/
+static inline uint16_t w51eReadW(w51eReg_t reg16)
+{
+	return ((w51eRead(reg16) & 0x00FF) << 8) | w51eRead(reg16 + 1);
+}
+
+/*! @brief Write 16-bit data (WORD) to W5100 register
+ *
+ *  @param[in] reg16		W5100 MSB-register
+ *	@param[in] data			Data to be written
+ *	@date 14.04.17			First implementation					*/
+static inline void w51eWriteW(w51eReg_t reg16, uint16_t data)
+{
+	w51eWrite(reg16, (data&0xFF00) >> 8);
+	w51eWrite(reg16+1, data&0x00FF);
+}
 
 #endif /* W5100_H_ */
