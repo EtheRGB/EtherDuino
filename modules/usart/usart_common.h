@@ -60,7 +60,7 @@ typedef enum tagUsartBaudrate_t {
  *	See datasheet p. 225 (24.2 Overview).
  *
  *	@date 05.12.16				first implementation				*/
-inline void usartPowerEnable(void)
+static inline void usartPowerEnable(void)
 {
 	PRR &= ~(1 << PRUSART0);
 }
@@ -70,7 +70,7 @@ inline void usartPowerEnable(void)
  *	See datasheet p. 225 (24.2 Overview).
  *
  *	@date 05.12.16				first implementation				*/
-inline void usartPowerDisable(void)
+static inline void usartPowerDisable(void)
 {
 	PRR |= 1 << PRUSART0;
 }
@@ -81,7 +81,7 @@ inline void usartPowerDisable(void)
  *
  *	@param[in] mode				USART mode
  *	@date 05.12.16				first implementation				*/
-inline void usartSetMode(usartMode_t mode)
+static inline void usartSetMode(usartMode_t mode)
 {
 	UCSR0C &= ~(~(mode&0x03) << UPM00);
 	UCSR0C |= (mode&0x03) << UPM00;
@@ -94,7 +94,7 @@ inline void usartSetMode(usartMode_t mode)
  *
  *	@param[in] baudrate			USART baud rate (from enum)
  *	@date 05.12.16				first implementation				*/
-inline void usartSetBaudrate(usartBaudrate_t baudrate)
+static inline void usartSetBaudrate(usartBaudrate_t baudrate)
 {
 	UBRR0 = baudrate & 0x0FFF;
 
@@ -105,7 +105,7 @@ inline void usartSetBaudrate(usartBaudrate_t baudrate)
 /*! @brief Wait until the USART data buffer is empty
  *
  *	@date 05.12.16				first implementation				*/
-inline void usartWaitDREmpty(void)
+static inline void usartWaitDREmpty(void)
 {
 	while( !(UCSR0A & (1 << UDRE0)) ){;}
 }
@@ -113,7 +113,7 @@ inline void usartWaitDREmpty(void)
 /*! @brief Enable USART RTX function
  *
  *	@date 05.12.16				first implementation				*/
-inline void usartEnable(void)
+static inline void usartEnable(void)
 {
 	UCSR0B |= (1 << TXEN0) | (1 << RXEN0);
 }
@@ -121,7 +121,7 @@ inline void usartEnable(void)
 /*! @brief Disable USART RTX function
  *
  *	@date 05.12.16				first implementation				*/
-inline void usartDisable(void)
+static inline void usartDisable(void)
 {
 	UCSR0B &= ~((1 << TXEN0) | (1 << RXEN0));
 }
@@ -130,7 +130,7 @@ inline void usartDisable(void)
  *
  *	@param[in] data				Data to be transmitted
  *	@date 05.12.16				first implementation				*/
-inline void usartSendData(uint16_t data)
+static inline void usartSendData(uint16_t data)
 {
 	//usartWaitDREmpty();
 	UCSR0B &= ~(1 << TXB80);
@@ -142,7 +142,7 @@ inline void usartSendData(uint16_t data)
  *
  *  @return uint16_t			Data from RX buffer
  *	@date 06.12.16				first implementation				*/
-inline uint16_t usartReadData9(void)
+static inline uint16_t usartReadData9(void)
 {
 	return (UDR0) | (((UCSR0B & (1 << TXB80)) >> TXB80) << 8);
 }
@@ -151,7 +151,7 @@ inline uint16_t usartReadData9(void)
  *
  *	@return uint8_t				Data from RX buffer
  *	@date 06.12.16				first implementation				*/
-inline uint8_t usartReadData(void)
+static inline uint8_t usartReadData(void)
 {
 	return UDR0;
 }
@@ -160,7 +160,7 @@ inline uint8_t usartReadData(void)
  *
  *	@return bool				TXC bit state
  *	@date 07.12.16				first implementation				*/
-inline bool usartTXC(void)
+static inline bool usartTXC(void)
 {
 	return (UCSR0A & (1 << TXC0));
 }
@@ -169,7 +169,7 @@ inline bool usartTXC(void)
  *
  *	@return bool				RXC bit state
  *	@date 07.12.16				first implementation				*/
-inline bool usartRXC(void)
+static inline bool usartRXC(void)
 {
 	return (UCSR0A & (1 << RXC0));
 }
@@ -178,7 +178,7 @@ inline bool usartRXC(void)
  *
  *	@return bool				UDRE bit state
  *	@date 07.12.16				first implementation				*/
-inline bool usartUDRE(void)
+static inline bool usartUDRE(void)
 {
 	return (UCSR0A & (1 << UDRE0));
 }

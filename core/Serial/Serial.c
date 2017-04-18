@@ -5,6 +5,7 @@
 
 /*! @file */
 
+#include <avr/interrupt.h>
 #include "Serial.h"
 
 /*! @brief Push data into receive ring buffer
@@ -214,18 +215,6 @@ int serialWriteStr(const char* message)
 	}
 
 	return stringPos;
-}
-
-/*! @brief Output String from FLASH via Serial
- *
- *	@warn Not yet implemented
- *
- *	@param[in] *message			String to be transmitted (\0-Term!)
- *	@return int					Number of chars sent
- *	@date 13.12.16				first implementation				*/
-int serialWriteStrP(const PROGMEM char* message)
-{
-	return 0;
 }
 
 /*! @brief Output via serial from non-progmem memory buffer

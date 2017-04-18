@@ -41,7 +41,7 @@ typedef enum tagSpiClkMode_t
 /*! @brief Enable SPI module power
  *
  *	@date 04.12.16			first implementation					*/
-inline void spiPowerEnable(void)
+static inline void spiPowerEnable(void)
 {
 	// Enable SPI module in the power reduction register as per
 	// datasheet p. 215 (23.2 Overview)
@@ -51,7 +51,7 @@ inline void spiPowerEnable(void)
 /*! @brief Disable SPI module power
  *
  *	@date 04.12.16			first implementation					*/
-inline void spiPowerDisable(void)
+static inline void spiPowerDisable(void)
 {
 	// Disable SPI module in the power reduction register as per
 	// datasheet p. 215 (23.2 Overview)
@@ -61,7 +61,7 @@ inline void spiPowerDisable(void)
 /*! @brief Enable SPI function
  *
  *	@date 05.12.16			first implementation					*/
-inline void spiEnable(void)
+static inline void spiEnable(void)
 {
 	SPCR |= 1 << SPE;
 }
@@ -69,7 +69,7 @@ inline void spiEnable(void)
 /*! @brief Disable SPI function
  *
  *	@date 05.12.16			first implementation					*/
-inline void spiDisable(void)
+static inline void spiDisable(void)
 {
 	SPCR &= ~(1 << SPE);
 }
@@ -78,7 +78,7 @@ inline void spiDisable(void)
  *
  *	@param[in] mode			Slave/Master mode
  *	@date 05.12.16			first implementation					*/
-inline void spiSetMstrSlave(spiMode_t mode)
+static inline void spiSetMstrSlave(spiMode_t mode)
 {
 	// Set/Clear SPI master mode in SPCR as per datasheet 
 	// p. 221 (23.5.1 SPI Control Register 0)
@@ -92,7 +92,7 @@ inline void spiSetMstrSlave(spiMode_t mode)
  *
  *	@param[in] mode			SPI Mode (0...3)
  *	@date 05.12.16			first implementation					*/
-inline void spiSetClkMode(spiClkMode_t mode)
+static inline void spiSetClkMode(spiClkMode_t mode)
 {
 	// Set/Clear SPI clock polarity and phase as per datasheet
 	// p. 221f (23.5.1 SPI Control Register 0)
@@ -104,7 +104,7 @@ inline void spiSetClkMode(spiClkMode_t mode)
  *
  *	@param[in] order		Data direction LSB or MSB first
  *	@date 05.12.16			first implementation					*/
-inline void spiSetDataOrder(spiDataOrder_t order)
+static inline void spiSetDataOrder(spiDataOrder_t order)
 {
 	SPCR &= ~(!order << DORD);
 	SPCR |= order << DORD;
@@ -113,7 +113,7 @@ inline void spiSetDataOrder(spiDataOrder_t order)
 /*! @brief Get SPI interrupt flag state
  *
  *	@date 05.12.16			first implementation					*/
-inline bool spiGetIF(void)
+static inline bool spiGetIF(void)
 {
 	// Get interrupt flag state
 	// see datasheet p. 223 (25.3.2 SPI Status Register 0)
@@ -127,7 +127,7 @@ inline bool spiGetIF(void)
  *  SPDR (see datasheet p. 223, 23.5.2 SPI Status Register 0).
  *
  *	@date 05.12.16			first implementation					*/
-inline void spiClrIF(void)
+static inline void spiClrIF(void)
 {
 	// Clear interrupt flag
 	SPSR &= (1 << SPIF);
@@ -137,7 +137,7 @@ inline void spiClrIF(void)
  *
  *	@param[in] data			Byte to be transmitted
  *	@date 05.12.16			first implementation					*/
-inline void spiTxByte(uint8_t data)
+static inline void spiTxByte(uint8_t data)
 {
 	SPDR = data;
 }
@@ -146,7 +146,7 @@ inline void spiTxByte(uint8_t data)
  *
  *	@param[in] data			Byte to be transmitted
  *	@date 07.12.16			first implementation					*/
-inline void spiTxByteWait(uint8_t data)
+static inline void spiTxByteWait(uint8_t data)
 {
 	spiTxByte(data);
 
@@ -157,7 +157,7 @@ inline void spiTxByteWait(uint8_t data)
  *
  *	@return	uint8_t			Data from SPI data register (SPDR)
  *	@date 05.12.16			first implementation					*/
-inline uint8_t spiRxByte(void)
+static inline uint8_t spiRxByte(void)
 {
 	return SPDR;
 }
@@ -169,7 +169,7 @@ inline uint8_t spiRxByte(void)
  *
  *	@return uint8_t			Data from SPI data register (SPDR)
  *	@date 05.12.16			first implementation					*/
-inline uint8_t spiWaitRxByte(void)
+static inline uint8_t spiWaitRxByte(void)
 {
 	// Poll SPIF until set
 	while(!spiGetIF()){;}
@@ -177,7 +177,7 @@ inline uint8_t spiWaitRxByte(void)
 	return spiRxByte();
 }
 
-inline uint8_t spiTransfer(uint8_t data)
+static inline uint8_t spiTransfer(uint8_t data)
 {
 	SPDR = data;
 	while (!(SPSR & (1 << SPIF))){;}

@@ -44,7 +44,7 @@ typedef enum tagUsartSBit_t
  *
  *  @param[in] dataLen			Data length
  *	@date 05.12.16				first implementation				*/
-inline void usartSetDataLen(usartDataLen_t dataLen)
+static inline void usartSetDataLen(usartDataLen_t dataLen)
 {
 	UCSR0B &= ~((((~dataLen)&0x04) >> 2) << UCSZ02);
 	UCSR0C &= ~(((~dataLen)&0x03) << UCSZ00);
@@ -58,7 +58,7 @@ inline void usartSetDataLen(usartDataLen_t dataLen)
  *
  *	@param[in] parity			Parity bit mode
  *	@date 05.12.16				first implementation				*/
-inline void usartSetParity(usartParity_t parity)
+static inline void usartSetParity(usartParity_t parity)
 {
 	UCSR0C &= ~(((~parity)&0x03) << UPM00);
 	UCSR0C |= (parity&0x03) << UPM00;
@@ -70,7 +70,7 @@ inline void usartSetParity(usartParity_t parity)
  *
  *	@param[in] stopBits			Stop bit configuration
  *	@date 05.12.16				first implementation				*/
-inline void usartSetSBits(usartSBit_t stopBits)
+static inline void usartSetSBits(usartSBit_t stopBits)
 {	
 	UCSR0C &= ~(!stopBits << USBS0);
 	UCSR0C |= stopBits << USBS0;
@@ -84,7 +84,7 @@ inline void usartSetSBits(usartSBit_t stopBits)
  *	@param[in] parity			Parity mode (none, even, odd)
  *  @param[in] stopBits			Stop bits per frame
  *	@date 05.12.16				first implementation				*/
-inline void usartInitRs232(usartMode_t mode,\
+static inline void usartInitRs232(usartMode_t mode,\
 							usartBaudrate_t baudrate,\
 							usartDataLen_t dataLen,\
 							usartParity_t parity,\
