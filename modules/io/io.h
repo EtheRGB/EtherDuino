@@ -1,7 +1,8 @@
 /*! @brief I/O definitions
  *
  *	@author	inselc
- *	@date	04.12.16	initial version								*/
+ *	@date	04.12.16	initial version
+ *	@date	23.04.17	Fixed pin_t pointers						*/
 
 #ifndef IO_H_
 #define IO_H_
@@ -71,34 +72,37 @@ static inline void ioSetPinDirection(pin_t* pin, pinDir_t direction)
 
 /*! @brief Read the digital pin state
  *
- *  @param[in] pin			Selected pin
+ *  @param[in] *pin			Selected pin
  *	@return bool			Pin state
- *  @date 04.12.16			first implementation					*/
-static inline bool ioReadPin(pin_t pin)
+ *  @date 04.12.16			first implementation
+ *	@date 23.04.17			Fixed pin_t pointer type				*/
+static inline bool ioReadPin(pin_t* pin)
 {
 	// return pin state as boolean
-	return (bool)(*pin.Port & (1 << pin.Number));
+	return (bool)(*pin->Port & (1 << pin->Number));
 }
 
 /*! @brief Set the digital pin state
  * 
- *	@param[in] pin			Target pin
+ *	@param[in] *pin			Target pin
  *	@param[in] state		Output state
- *	@date 04.12.16			first implementation					*/
-static inline void ioWritePin(pin_t pin, bool state)
+ *	@date 04.12.16			first implementation
+ *	@date 23.04.17			Fixed pin_t pointer type				*/
+static inline void ioWritePin(pin_t* pin, bool state)
 {
 	// apply new state to pin output
-	*pin.Port &= ~(!state << pin.Number);
-	*pin.Port |= state << pin.Number;
+	*pin->Port &= ~(!state << pin->Number);
+	*pin->Port |= state << pin->Number;
 }
 
 /*! @brief Configure Pull-ups for I/O pin
  *
  *	@warning Pin must be set into safe configuration for transition beforehand!
  * 
- *	@param[inout] pin		Selected pin configuration
+ *	@param[inout] *pin		Selected pin configuration
  *	@param[in] pullUpEnable	New pullup-disable state
- *	@data 04.12.16			first implementation					*/
+ *	@data 04.12.16			first implementation
+ *	@date 23.04.17			Fixed pin_t pointer type				*/
 static inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
 {
 	// apply pull-up only, if pin direction is an output.
@@ -109,7 +113,7 @@ static inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
 
 		// Apply pull-up configuration as per
 		// datasheet p. 99 (18.2.3 Switching Between Input and Output)
-		ioWritePin(*pin, pin->PullUp);
+		ioWritePin(pin, pin->PullUp);
 	}
 }
 
@@ -117,14 +121,15 @@ static inline void ioSetPinPullup(pin_t* pin, bool pullUpEnable)
  *
  *	@note Outputs will be initialised with a default LOW state.
  *
- *	@param[in] pinConf		Pin configuration
- *	@date 04.12.16			first implementation					*/
-static inline void ioInitPin(pin_t pinConf)
+ *	@param[in] *pinConf		Pin configuration
+ *	@date 04.12.16			first implementation
+ *	@date 23.04.17			Fixed pin_t pointer type				*/
+static inline void ioInitPin(pin_t* pinConf)
 {
 	// Set pin direction in DDR
-	ioSetPinDirection(&pinConf, pinConf.Direction);
+	ioSetPinDirection(pinConf, pinConf->Direction);
 	// Set pull-up configuration, if pin is an input
-	ioSetPinPullup(&pinConf, pinConf.PullUp);
+	ioSetPinPullup(pinConf, pinConf->PullUp);
 }
 
 /*! @brief Globally disable pull-up resistors via the MCUCR PUD bit.
@@ -141,15 +146,16 @@ static inline void ioSetGlobalPullUp(bool PUDisable)
  *
  *  @note Pin must be configured as an output!
  * 
- *	@param[in] pin			Target pin
- *	@date 04.12.16			first implementation					*/
-static inline void ioTogglePin(pin_t pin)
+ *	@param[in] *pin			Target pin
+ *	@date 04.12.16			first implementation
+ *	@date 23.04.17			Fixed pin_t pointer type				*/
+static inline void ioTogglePin(pin_t* pin)
 {
 	//if ( (*pin.DDR & (1 << pin.Number)) && (pin.Direction == OUTPUT) )
 	{
 		// The PIN register is a W1T-type register as per
 		// datasheet p. 99 (18.2.2 Toggling the Pin)
-		*pin.PINR = 1 << pin.Number;
+		*pin->PINR = 1 << pin->Number;
 	}
 }
 

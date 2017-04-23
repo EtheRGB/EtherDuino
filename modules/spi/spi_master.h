@@ -1,7 +1,8 @@
 /*! @brief SPI Master-mode definitions
  *
  *	@author	inselc
- *	@date	05.12.16	initial version								*/ 
+ *	@date	05.12.16	initial version	
+ *	@date	23.04.17	Added getSpiClkRate							*/ 
 
 #ifndef SPI_MASTER_H_
 #define SPI_MASTER_H_
@@ -36,6 +37,18 @@ static inline void spiSetMstrClkRate(spiClkRate_t rate)
 	// SPI Clock Rate Select
 	SPCR &= ~(((~rate)&0x03) << SPR0);
 	SPCR |= (rate&0x03) << SPR0;
+}
+
+/*!	@brief Get current SPI Clock rate configuration 
+ *
+ *	@return spiClkRate_t	SPI Clock rate
+ *	@date 23.04.17			First implementation					*/
+static inline spiClkRate_t spiGetMstrClkRate(void)
+{
+	spiClkRate_t rate = (SPCR >> SPR0) & 0x03;
+	rate |= ((SPSR >> SPI2X) & 0x01) << 2;
+
+	return rate;
 }
 
 void spiInitMaster(spiClkRate_t clkRate, spiClkMode_t clkMode, spiDataOrder_t dataOrder);

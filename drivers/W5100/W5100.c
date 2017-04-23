@@ -24,10 +24,10 @@ static pin_t csPinW5100 = {
 void w51eInit(void)
 {
 	// Set up GPIO
-	ioInitPin(csPinW5100);
+	ioInitPin(&csPinW5100);
 
 	// Default CS disabled
-	ioWritePin(csPinW5100, HIGH);
+	ioWritePin(&csPinW5100, HIGH);
 }
 
 /*!	@brief Write data to W5100 register
@@ -38,31 +38,31 @@ void w51eInit(void)
 void w51eWrite(w51eReg_t reg, uint8_t data)
 {
 	// Enable ChipSelect
-	ioWritePin(csPinW5100, LOW);
+	ioWritePin(&csPinW5100, LOW);
 
 	if (spiTransfer(0xF0) != 0x00)	// "Read" opcode
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return;
 	}
 	if (spiTransfer(reg >> 8) != 0x01)	// Address high byte
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return;
 	}
 	if(spiTransfer(reg) != 0x02) // Address low byte
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return;
 	}
 	if(spiTransfer(data) != 0x03)
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return;
 	}
 
 	// Disable ChipSelect
-	ioWritePin(csPinW5100, HIGH);
+	ioWritePin(&csPinW5100, HIGH);
 }
 
 /*! @brief Read data from W5100 register
@@ -74,29 +74,29 @@ uint8_t w51eRead(w51eReg_t reg)
 	uint8_t c;
 
 	// Enable ChipSelect
-	ioWritePin(csPinW5100, LOW);
+	ioWritePin(&csPinW5100, LOW);
 
 	// Transmit frame and read data
 	if (spiTransfer(0x0F) != 0x00)	// "Read" opcode
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return 0x00;
 	}
 	if (spiTransfer(reg >> 8) != 0x01)	// Address high byte
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return 0x00;
 	}
 	if(spiTransfer(reg & 0x00FF) != 0x02) // Address low byte
 	{
-		ioWritePin(csPinW5100, HIGH);
+		ioWritePin(&csPinW5100, HIGH);
 		return 0x00;
 	}
 	c = spiTransfer(0xFF);
 
 
 	// Disable ChipSelect
-	ioWritePin(csPinW5100, HIGH);
+	ioWritePin(&csPinW5100, HIGH);
 
 	return c;
 }

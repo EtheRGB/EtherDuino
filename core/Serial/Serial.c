@@ -217,6 +217,30 @@ int serialWriteStr(const char* message)
 	return stringPos;
 }
 
+/*! @brief Output flash string via serial connection (USART RS232)
+ *
+ * This method will only work, if USART is configured for a
+ * character length of 8+ bits!
+ *
+ *	@param[in] *message			Message in PROGMEM
+ *	@return int					Number of characters sent
+ *	@date 22.12.16				first implementation				*/
+int serialWriteStrP(PGM_P message) 
+{
+	int stringPos = 0;
+	char msgChar = (char)pgm_read_byte(message);
+
+	while ((msgChar != '\0') && (stringPos < SERIAL_MAX_STRLEN))
+	{
+		usartWaitDREmpty();
+		usartSendData(msgChar);
+		stringPos++;
+		msgChar = (char)pgm_read_byte(message+stringPos);
+	}
+
+	return stringPos;
+}
+
 /*! @brief Output via serial from non-progmem memory buffer
  *
  * This method will ignore the buffer content, and output until

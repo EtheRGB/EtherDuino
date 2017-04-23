@@ -10,16 +10,18 @@
 
 #include "../../core/Serial/Serial.h"
 #include <stdlib.h>
+#include <avr/pgmspace.h>
 
-static inline void ERROR_LOG(const char* x) 
+static inline void ERROR_LOG(PGM_P x) 
 {
-	serialWriteStr("\r\n Error in " __FILE__ ":");
+	/*serialWriteStrP(PSTR("\r\n Error in " __FILE__ ":"));
 	char n[4];
 	itoa(__LINE__, n, 10);
 	serialWriteBuf((uint8_t*)n, 4, -1);
-	serialWriteStr(" ");
-	serialWriteStr(x);
-	serialWriteStr("\r\n");
+	serialWriteStrP(PSTR(" "));
+	serialWriteStrP(x);
+	serialWriteStrP(PSTR("\r\n"));*/
+	;
 }
 
 #endif /* DEBUG_H_ */
