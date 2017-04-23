@@ -49,6 +49,7 @@ uint8_t serialReadBufUntil(uint8_t* buffer, uint8_t bufSize, char stopChar, int 
 uint8_t serialRead(void);
 uint8_t serialPeek(void);
 int serialWriteStr(const char* message);
+int serialWriteStrP(PGM_P message);
 uint16_t serialWriteBuf(uint8_t* data, uint16_t length, int timeout);
 void serialFlush(void);
 
