@@ -26,14 +26,15 @@ static bool gracefulReset;
  *	@note The watchdog needs to be reset ("petted") every 120ms,
  *		  or the system will be reset with an error
  *
- *	@date 15.04.17			First implementation					*/
+ *	@date 15.04.17			First implementation
+ *	@date 23.04.17			Adjusted timeout time					*/
 void wdogInit(void)
 {
 	// Default to error-reset
 	gracefulReset = false;
 	
 	cli();
-	wdt_enable(WDTO_500MS);
+	wdt_enable(WDTO_2S);
 
 	// Interrupt+System Reset Mode
 	WDTCSR |= (1 << WDE) | (1 << WDIE);
@@ -66,12 +67,12 @@ ISR(WDT_vect)
 	cli();
 	if (gracefulReset)
 	{
-		serialWriteStr("Rebooting...\r\n\r\n");
+		serialWriteStrP(PSTR("Rebooting...\r\n\r\n"));
 		; // Save stuff
 	}
 	else
 	{
-		serialWriteStr("Error: Watchdog timeout.\r\n\r\n");
+		serialWriteStrP(PSTR("Error: Watchdog timeout.\r\n\r\n"));
 		; // Display error message
 	}
 
