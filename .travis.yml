@@ -1,0 +1,22 @@
+language: "c"
+dist: "trusty"
+sudo: false
+
+addons:
+  apt:
+    packages:
+      - gcc-avr
+      - binutils-avr
+      - avr-libc
+
+install:
+  - avr-gcc --version
+  - make --version
+  - "pip install pathlib2"
+
+before_script:
+  - python tools/ConvertMakefile.py Makefile
+  - python tools/ConvertMakedep.py makedep.mk
+
+script:
+- make
