@@ -1,9 +1,7 @@
-/*
- * Watchdog.c
+/*!	@brief System Watchdog Timer module
  *
- * Created: 4/15/2017 9:48:45 PM
- *  Author: inselc
- */ 
+ *	@author	inselc
+ *	@date 15.04.17			First implementation					*/
 
 #include "Watchdog.h"
 #include <stdint.h>
@@ -11,8 +9,9 @@
 #include <avr/io.h>
 #include <avr/interrupt.h>
 #include "../Serial/Serial.h" 
+#include "../Log/Log.h"
 
-static bool gracefulReset;
+bool gracefulReset;
 
 /*! @brief Check, whether the system is booting after a reset
  *		   caused by an error.
@@ -38,6 +37,9 @@ void wdogInit(void)
 
 	// Interrupt+System Reset Mode
 	WDTCSR |= (1 << WDE) | (1 << WDIE);
+
+	// Reset timer
+	wdt_reset();
 	sei();
 }
 
@@ -61,18 +63,19 @@ void __attribute__((noreturn,naked)) wdogReboot(void)
  *	Checks, whether the timeout was intentional, and reboots the
  *	system.
  *
- *	@date 15.04.17			First implementation					*/
+ *	@date 15.04.17			First implementation
+ *	@date 12.07.17			Improved logging						*/
 ISR(WDT_vect)
 {
 	cli();
 	if (gracefulReset)
 	{
-		serialWriteStrP(PSTR("Rebooting...\r\n\r\n"));
+		LOG_MESSAGE(SRC_SYSTEM, "Rebooting...\r\n");
 		; // Save stuff
 	}
 	else
 	{
-		serialWriteStrP(PSTR("Error: Watchdog timeout.\r\n\r\n"));
+		LOG_ERROR(SRC_SYSTEM, "Watchdog timeout. Rebooting...\r\n");
 		; // Display error message
 	}
 

@@ -1,10 +1,7 @@
-/*
- * Watchdog.h
+/*!	@brief System Watchdog Timer module
  *
- * Created: 4/15/2017 9:48:10 PM
- *  Author: inselc
- */ 
-
+ *	@author	inselc
+ *	@date 15.04.17			First implementation					*/
 
 #ifndef WATCHDOG_H_
 #define WATCHDOG_H_
@@ -34,6 +31,5 @@ static inline __attribute__((__always_inline__)) void wdogPet(void)
 {
 	wdt_reset();
 }
-
 
 #endif /* WATCHDOG_H_ */
