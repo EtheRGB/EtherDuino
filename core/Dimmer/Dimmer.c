@@ -64,12 +64,14 @@ void dimmerInit(pin_t** outputs, uint8_t* values, int outputCount)
 
 /*!	@brief Timer 0 Compare Match ISR: bit angle modulation
  *
- *	@date 28.04.17		First implementation						*/
+ *	@date 28.04.17		First implementation
+ *	@date 15.07.17		Added NULL check							*/
 ISR(TIMER0_COMPA_vect)
 {
 	for (uint_fast8_t i = 0; i < dimmerOutputsCount; ++i)
 	{
-		ioWritePin(dimmerOutputs[i], dimmerValues[i] & (1 << (dimmerCurrentBit)));
+		if (dimmerOutputs[i] != NULL)
+			ioWritePin(dimmerOutputs[i], dimmerValues[i] & (1 << (dimmerCurrentBit)));
 	}
 	timer0SetCompareA(dimmerBitAngleTimings[dimmerCurrentBit]);
 	
