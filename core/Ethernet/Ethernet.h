@@ -14,6 +14,11 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#if defined(CONF_DEVICE_USENIC_W5100)
+#include "../../drivers/W5100/W5100.h"
+#else /*defined(CONF_DEVICE_USENIC_W5500)*/
+#include "../../drivers/W5500/W5500.h"
+#endif
 
 typedef uint8_t socket_t;
 
@@ -21,6 +26,11 @@ typedef struct {
 	uint8_t ip[4];
 	uint16_t port;
 } peer_t;
+
+bool ethIsClosed(socket_t socket);
+bool ethIsClosing(socket_t socket);
+bool ethIsListening(socket_t socket);
+bool ethIsEstablished(socket_t socket);
 
 void ethInit(uint8_t txMemSizes, uint8_t rxMemSizes);
 void ethSetLocalIP(uint8_t mac[6], uint8_t subnet[4], uint8_t ip[4]);

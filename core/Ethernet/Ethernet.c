@@ -12,8 +12,13 @@
 #include <limits.h>
 #include <stdint.h>
 #include "Ethernet.h"
-#include "../Debug/debug.h"
+#include "../Serial/Serial.h"
+#include "../Log/Log.h"
+#if defined(CONF_DEVICE_USENIC_W5100)
 #include "../../drivers/W5100/W5100.h"
+#else /* defined (CONF_DEVICE_USENIC_W5500)*/
+#include "../../drivers/W5500/W5500.h"
+#endif
 
 #define UDP_HEADER_LEN		8
 
@@ -118,6 +123,47 @@ void ethSetLocalIP(uint8_t mac[6], uint8_t subnet[4], uint8_t ip[4])
 	w51eWrite(W5100_REG_SIPR3, ip[3]);
 }
 
+/*!	@brief Check if socket is in the closed state
+ *
+ *	@param[in] socket		Socket number
+ *	@return bool			true, if socket is closed
+ *	@date 08.07.17			First implementation				*/
+bool ethIsClosed(socket_t socket)
+{
+	return (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) == W5100_Sn_SR_SOCK_CLOSED);
+}
+
+/*!	@brief Check if socket is closing or awaiting to be closed
+ *
+ *	@param[in] socket		Socket number
+ *	@return bool			true, if socket is in closing state
+ *	@date 08.07.17			First implementation				*/
+bool ethIsClosing(socket_t socket)
+{
+	uint8_t status = w51eRead(W5100_SRG(socket, W5100_REG_S0_SR));
+	return ((status == W5100_Sn_SR_SOCK_CLOSING) || (status == W5100_Sn_SR_SOCK_CLOSE_WAIT));
+}
+
+/*!	@brief Check if socket is currently listening
+ *
+ *	@param[in] socket		Socket number
+ *	@return bool			true, if socket is in listening state
+ *	@date 08.07.17			First implementation				*/
+bool ethIsListening(socket_t socket)
+{
+	return (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) == W5100_Sn_SR_SOCK_LISTEN);
+}
+
+/*!	@brief Check if socket has an active connection
+ *
+ *	@param[in] socket		Socket number
+ *	@return bool			true, if socket is in established state
+ *	@date 08.07.17			First implementation				*/
+bool ethIsEstablished(socket_t socket)
+{
+	return (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) == W5100_Sn_SR_SOCK_ESTABLISHED);
+}
+
 /*! @brief Open socket
  *
  *  @param[in] socket		Target socket
@@ -154,7 +200,7 @@ bool ethSockOpen(socket_t socket, uint16_t port, uint8_t protocol, uint8_t modeF
 	// Check if opening timed out or if connection was established
 	if (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) == W5100_Sn_SR_SOCK_CLOSED)
 	{	
-		ERROR_LOG("OpenSocket timeout");
+		LOG_ERROR(SRC_ETHERNET, "OpenSocket timeout");
 		ethSockClose(socket);
 		return false;
 	}
@@ -184,7 +230,7 @@ bool ethSockListen(socket_t socket)
 	// Check if socket is initialized properly
 	if (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) != W5100_Sn_SR_SOCK_INIT)
 	{
-		ERROR_LOG("Sock not in INIT mode");
+		LOG_ERROR(SRC_ETHERNET, "Sock not in INIT mode");
 		return false;
 	}
 
@@ -201,7 +247,7 @@ bool ethSockListen(socket_t socket)
 	 // Check if listen timed out
 	 if (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) != W5100_Sn_SR_SOCK_LISTEN)
 	 {
-		ERROR_LOG("Could not set LISTEN mode");
+		LOG_ERROR(SRC_ETHERNET, "Could not set LISTEN mode");
 		return false;
 	 }
 
@@ -220,7 +266,7 @@ bool ethSockConnect(socket_t socket, peer_t* targetPeer)
 	// Check if socket is initialized properly
 	if (w51eRead(W5100_SRG(socket, W5100_REG_S0_SR)) != W5100_Sn_SR_SOCK_INIT)
 	{
-		ERROR_LOG("Sock not in INIT mode");
+		LOG_ERROR(SRC_ETHERNET, "Sock not in INIT mode");
 		return false;
 	}
 
@@ -265,7 +311,7 @@ void ethSockDisconnect(socket_t socket)
  *	@date 23.04.17			int return type							*/
 int ethAvailable(socket_t socket)	
 {
-	return w51eReadW(W5100_REG_S0_RX_RSR0);
+	return w51eReadW(W5100_SRG(socket, W5100_REG_S0_RX_RSR0));
 }
 
 /*! @brief Read data from socket receive memory
@@ -326,6 +372,7 @@ int ethReadFrom(socket_t socket, peer_t* sourcePeer, uint8_t* dataBuffer, int bu
 	uint16_t bytesAvailable = ethAvailable(socket);
 	if (bytesAvailable < 8)
 	{
+		LOG_ERROR(SRC_ETHERNET, "Size too small");
 		return 0;
 	}
 
@@ -424,6 +471,7 @@ int ethWrite(socket_t socket, uint8_t* dataBuffer, int dataLength)
 	// Abort if no data to be written
 	if (dataLength == 0)
 	{
+		LOG_ERROR(SRC_ETHERNET, "Data len null");
 		return 0;
 	}
 
@@ -431,7 +479,7 @@ int ethWrite(socket_t socket, uint8_t* dataBuffer, int dataLength)
 	int freeSize = w51eReadW(W5100_SRG(socket, W5100_REG_S0_TX_FSR0));
 	if (freeSize == 0)
 	{
-		ERROR_LOG("TXM full");
+		LOG_ERROR(SRC_ETHERNET, "TXM full");
 		return 0;
 	}
 
@@ -463,7 +511,7 @@ int ethWrite(socket_t socket, uint8_t* dataBuffer, int dataLength)
 	if (timeout == UINT_FAST16_MAX)
 	{
 		// Timeout error
-		ERROR_LOG("Timeout sending data");
+		LOG_ERROR(SRC_ETHERNET, "Timeout sending data");
 		return 0;
 	}
 
@@ -499,7 +547,7 @@ int ethWriteTo(socket_t socket, peer_t* targetPeer, uint8_t* dataBuffer, int dat
 	int freeSize = w51eReadW(W5100_SRG(socket, W5100_REG_S0_TX_FSR0));
 	if (freeSize == 0)
 	{
-		ERROR_LOG("TXM full");
+		LOG_ERROR(SRC_ETHERNET, "TXM full");
 		return 0;
 	}
 
@@ -547,7 +595,7 @@ int ethWriteTo(socket_t socket, peer_t* targetPeer, uint8_t* dataBuffer, int dat
 		// reset in this case
 		
 		// Timeout error
-		ERROR_LOG("Timeout sending data");
+		LOG_ERROR(SRC_ETHERNET, "Timeout sending data");
 		ethSockClose(socket);
 		return 0;
 	}
