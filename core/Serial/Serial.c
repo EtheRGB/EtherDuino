@@ -187,6 +187,19 @@ uint8_t serialRead(void)
 	return serialPopRxBuf();
 }
 
+/*!	@brief Ouput a single byte via serial connection
+ *
+ *	This will only work, if USART is configured for a 
+ *	character length of 8+ bits!
+ *
+ *	@param[in] data				Character to be transmitted
+ *	@date 08.07.17				First implementation				*/
+void serialWriteChar(char data)
+{
+	usartWaitDREmpty();
+	usartSendData(data);
+}
+
 /*! @brief Output string via serial connection (USART RS232)
  *
  * This method will only work, if USART is configured for a
@@ -262,7 +275,10 @@ uint16_t serialWriteBuf(uint8_t* data, uint16_t count, int timeout)
 
 	while (byteCounter < count && (timeoutCount < timeout || timeout < 0))
 	{
-		if (usartUDRE())
+		usartWaitDREmpty();
+		usartSendData(data[byteCounter]);
+		byteCounter++;
+		/*if (usartUDRE())
 		{
 			usartSendData(data[byteCounter]);
 			byteCounter++;
@@ -270,7 +286,7 @@ uint16_t serialWriteBuf(uint8_t* data, uint16_t count, int timeout)
 		else
 		{
 			timeoutCount = (timeoutCount + 1) % INT_MAX;
-		}
+		}*/
 	}
 
 	return byteCounter;

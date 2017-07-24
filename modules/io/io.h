@@ -75,11 +75,12 @@ static inline void ioSetPinDirection(pin_t* pin, pinDir_t direction)
  *  @param[in] *pin			Selected pin
  *	@return bool			Pin state
  *  @date 04.12.16			first implementation
- *	@date 23.04.17			Fixed pin_t pointer type				*/
+ *	@date 23.04.17			Fixed pin_t pointer type				
+ *	@date 10.07.17			Fixed reading from wrong register		*/
 static inline bool ioReadPin(pin_t* pin)
 {
 	// return pin state as boolean
-	return (bool)(*pin->Port & (1 << pin->Number));
+	return (bool)(*pin->PINR & (1 << pin->Number));
 }
 
 /*! @brief Set the digital pin state
